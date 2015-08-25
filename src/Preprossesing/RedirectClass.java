@@ -135,7 +135,7 @@ public class RedirectClass {
 	//Reads from Redirect file and returns a Map with Redirected to and the story page names
 	Map returnRedirectMap(String Redirect)
 	{
-		Map<String,Set> RedirectStoryMap = new HashMap<String, Set>();
+		Map<String,String> RedirectStoryMap = new HashMap<String, String>();
 		String line = "";
 		BufferedReader br = null;
 		try {
@@ -144,11 +144,13 @@ public class RedirectClass {
 				String[] data = line.split(";");
 				String redirect = data[0];
 				Set story = new HashSet();
-				for(int i=0;i<data.length;i++)
+				for(int i=1;i<data.length;i++)
 				{
-					story.add(data[i]);
+					if (!data[i].equals("")) {
+						RedirectStoryMap.put(data[i],
+								redirect);
+					}
 				}
-				RedirectStoryMap.put(redirect, story);
 			}
 		} catch (FileNotFoundException ex) {
 			Logger.getLogger(RedirectClass.class.getName()).log(

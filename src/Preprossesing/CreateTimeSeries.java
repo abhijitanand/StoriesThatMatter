@@ -39,36 +39,9 @@ public class CreateTimeSeries {
 	//3. A function to read from the above folder and create a story, timeseries file(Use redirect function)
 	//4. A function to read from folder and create a story, timeseries and frequency file(Use redirect file)
 	//5. Get timeseries for all stories present in wikitimes and from folders
-	void getTimeSeries(Set storyList, String Redirect, String outTimeSeries)
+	void getTimeSeries(Set fileEntityDate, String TimeSeries)
 	{
-		loadRedirectMapping(Redirect);
-	}
-	void loadRedirectMapping(String Redirect)
-	{
-		String line = "";
-		BufferedReader br = null;		
-		try {
-		
-		// Populate redirects
-		br = new BufferedReader(new InputStreamReader(new FileInputStream(
-				Redirect), "UTF8"));
-		while ((line = br.readLine()) != null) {
-			String[] redirect = line.split(";");
-			String redirectTo = redirect[0];
-			for (int i = 1; i < redirect.length; i++) {
-				if (!redirect[i].equals("")) {
-					RedirectMap.put(redirect[i],
-							redirectTo);
-				}
-			}
-		}
-		} catch (FileNotFoundException ex) {
-			Logger.getLogger(CreateTimeSeries.class.getName()).log(
-					Level.SEVERE, null, ex);
-		} catch (IOException ex) {
-			Logger.getLogger(CreateTimeSeries.class.getName()).log(
-					Level.SEVERE, null, ex);
-		}
+		getTimeSeriesForStories(fileEntityDate, TimeSeries);
 	}
 	String getRedirects(String storyName)
 	{
@@ -81,12 +54,13 @@ public class CreateTimeSeries {
 		}
 		return story;
 	}
-	void getTimeSeriesForExtendedStories(String fileEntityDate,
-			String TimeSeries, String Redirect) {
+	void getTimeSeriesForStories(Set fileEntityDate,
+			String TimeSeries) {
 		try {
 			/*Map<String, String> StoryPageNames = getStoryList(fileEntityDate,
 					Redirect);*/
-			Set StoryPageNames = getStoryLIstFromEventMainArticle(fileEntityDate);
+			//Set StoryPageNames = getStoryLIstFromEventMainArticle(fileEntityDate);
+			Set StoryPageNames = fileEntityDate;
 			Iterator it = StoryPageNames.iterator();
 			while(it.hasNext()) {
 				String storyName = it.next().toString();
@@ -142,42 +116,6 @@ public class CreateTimeSeries {
 					Level.SEVERE, null, ex);
 		}
 	}
-	
-	Set getStoryLIstFromEventMainArticle(String EventMainArticle)
-	{		
-		String line = "";
-		BufferedReader br = null;
-		Set StoryPageNames = new HashSet();
-		Set newStoryPageNames = new HashSet<>();
-		//Map<String, String> newStoryPageNames = new HashMap<String, String>();
-		try {
-			br = new BufferedReader(new FileReader(EventMainArticle));
-			while ((line = br.readLine()) != null) {
-				String[] data = line.split(";");
-				for(int i=0;i<data.length;i++)
-				{
-					if(!data[i].equals(""))
-					{
-						StoryPageNames.add(data[i]);
-					}					
-				}
-			}
-			Iterator it = StoryPageNames.iterator();
-			while (it.hasNext()) {
-				String storyName = it.next().toString();
-				String storyPageName = getRedirects(storyName);
-				newStoryPageNames.add(storyPageName);
-			}
-		} catch (FileNotFoundException ex) {
-			Logger.getLogger(CreateTimeSeries.class.getName()).log(
-					Level.SEVERE, null, ex);
-		} catch (IOException ex) {
-			Logger.getLogger(CreateTimeSeries.class.getName()).log(
-					Level.SEVERE, null, ex);
-		}
-		return newStoryPageNames;
-	}
-	
 	void getTimeSeriesFromJson(String storyJson, Map<Integer, Integer> DateCount) {
 		try {
 			DateFormat targetFormat = new SimpleDateFormat("yyyyMMdd");
