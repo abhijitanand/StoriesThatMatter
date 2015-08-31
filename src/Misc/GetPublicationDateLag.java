@@ -65,7 +65,7 @@ public class GetPublicationDateLag {
 		// outFile);
 		
 		
-		//pub.getValidURLs(outFile);
+		//pub.getValidURL(outFile);
 		//pub.getDomainFrequency(outFile);
 		/*String urlResponseCode = "/home/aanand/workspace/StoriesThatMatter/Data/Misc/PublicationDate/UrlResponseCode.csv";
 		String alreadyPublishedFile = "/home/aanand/workspace/StoriesThatMatter/Data/Misc/PublicationDate/alreadyPublishedFile.csv";
@@ -111,8 +111,8 @@ public class GetPublicationDateLag {
 				{
 					
 					int diff = getdateDiff(UrlWCEP.get(pairs.getKey()),pairs.getValue());
-					if(diff!=0)
-					{
+					//if(diff!=0)
+					//{
 						if(LagCount.containsKey(diff))
 						{
 							int temp = LagCount.get(diff);
@@ -125,7 +125,7 @@ public class GetPublicationDateLag {
 							LagCount.put(diff, 1);
 						}
 						System.out.println(pairs.getKey()+"\t"+UrlWCEP.get(pairs.getKey())+"\t"+pairs.getValue()+"\t"+diff);
-					}
+					//}
 				}
 			}
 			File statText = new File(lagFile);
@@ -135,11 +135,18 @@ public class GetPublicationDateLag {
 			Writer w = new BufferedWriter(osw);
 			TreeMap<Integer, Integer> treemap = new TreeMap<Integer, Integer>();
 			treemap.putAll(LagCount);
+			int count = 0;
 			for(Map.Entry<Integer, Integer>pairs: treemap.entrySet())
 			{
-				if(pairs.getKey()>-(10*365) && pairs.getKey()<(10*365))
-				w.write(pairs.getKey()+"\t"+pairs.getValue()+"\n");
+				if(pairs.getKey()>-365 && pairs.getKey()<(365))
+				{
+					w.write(pairs.getKey()+"\t"+pairs.getValue()+"\n");
+					count= count + pairs.getValue();
+				}
+				
 			}
+			System.out.println(count);
+			
 			w.close();
 		} catch (IOException ex) {
 			Logger.getLogger(AggregateSources.class.getName()).log(
@@ -213,12 +220,14 @@ public class GetPublicationDateLag {
 	public String parseDate(String date_str) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         SimpleDateFormat df1 = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat df01 = new SimpleDateFormat("yyyyMMddHHmm");
         SimpleDateFormat df2 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         SimpleDateFormat df111 = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat df11 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat df3 = new SimpleDateFormat("EEE, MMM d, yyyy");
         SimpleDateFormat df4 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         SimpleDateFormat df41 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        SimpleDateFormat df43 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         SimpleDateFormat df42 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         SimpleDateFormat df5 = new SimpleDateFormat("EEE, MMM. dd, yyyy");
         SimpleDateFormat df6 = new SimpleDateFormat("EEE, MMM dd, yyyy");
@@ -246,12 +255,14 @@ public class GetPublicationDateLag {
         //lst.add(df24);
         lst.add(df);
         lst.add(df1);
+        //lst.add(df01);
         lst.add(df2);
         lst.add(df111);
         lst.add(df3);
         lst.add(df4);
         lst.add(df41);
         lst.add(df42);
+        lst.add(df43);
         lst.add(df5);
         lst.add(df6);        
         lst.add(df7);
@@ -275,10 +286,21 @@ public class GetPublicationDateLag {
         lst.add(df23);
         lst.add(df24);
         lst.add(df25);
+        lst.add(df01);
         
         SimpleDateFormat df_simple = new SimpleDateFormat("yyyyMMdd");
+        /*if(date_str.contains("Z"))
+    	{
+    		SimpleDateFormat df001 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    		try {
+    		Date dt = df001.parse(date_str);
+    		return df_simple.format(dt);
+    		} catch (Exception e) {
+            }
+    	}*/
         for (SimpleDateFormat df_tmp : lst) {
             try {
+            	
                 Date dt = df_tmp.parse(date_str);
                 return df_simple.format(dt);
             } catch (Exception e) {
@@ -384,6 +406,11 @@ public class GetPublicationDateLag {
 							el = doc.select("abbr[class=published]").attr("title").toString();
 							
 						}
+						else if(!doc.select("div[class=publish-date]").toString().equals(""))
+						{
+							el = doc.select("div[class=publish-date]").text().toString();
+							
+						}
 						else if(!doc.select("pubDate").toString().equals(""))
 						{
 							el = doc.select("pubDate").text().toString();
@@ -397,6 +424,11 @@ public class GetPublicationDateLag {
 						else if(!doc.select("meta[name=DC.date.issued]").toString().equals(""))
 						{
 							el = doc.select("meta[name=DC.date.issued]").attr("content").toString();
+							
+						}
+						else if(!doc.select("span[class=c-dateline]").toString().equals(""))
+						{
+							el = doc.select("span[class=c-dateline]").text().toString();
 							
 						}
 						else if(!doc.select("div.txt.timestamp").toString().equals(""))
@@ -433,9 +465,15 @@ public class GetPublicationDateLag {
 							el = doc.select("meta[name=sailthru.date]").attr("content").toString();
 							
 						}
+						
+						else if(!doc.select("time").toString().equals(""))
+						{
+							el = doc.select("time").attr("datetime").toString();
+							
+						}
 						else if(!doc.select("span[class=date]").toString().equals(""))
 						{
-							el = doc.select("span[class=date]").text().toString();
+							el = doc.select("span[class=date]").first().text().toString();
 							
 						}
 						else if(!doc.select("span.date").toString().equals(""))
@@ -794,6 +832,11 @@ class ThreadDownloadGdelt implements Runnable {
 						el = doc.select("meta[name=DC.date.issued]").attr("content").toString();
 						
 					}
+					else if(!doc.select("span[class=c-dateline]").toString().equals(""))
+					{
+						el = doc.select("span[class=c-dateline]").text().toString();
+						
+					}
 					else if(!doc.select("div.txt.timestamp").toString().equals(""))
 					{
 						el = doc.select("div.txt.timestamp").attr("content").toString();
@@ -828,14 +871,15 @@ class ThreadDownloadGdelt implements Runnable {
 						el = doc.select("meta[name=sailthru.date]").attr("content").toString();
 						
 					}
-					else if(!doc.select("meta[name=Last-Modified]").toString().equals(""))
+					
+					else if(!doc.select("time").toString().equals(""))
 					{
-						el = doc.select("meta[name=Last-Modified]").attr("content").toString();
+						el = doc.select("time").attr("datetime").toString();
 						
 					}
 					else if(!doc.select("span[class=date]").toString().equals(""))
 					{
-						el = doc.select("span[class=date]").text().toString();
+						el = doc.select("span[class=date]").first().text().toString();
 						
 					}
 					else if(!doc.select("span.date").toString().equals(""))
@@ -846,6 +890,11 @@ class ThreadDownloadGdelt implements Runnable {
 					else if(!doc.select("td.text12g").toString().equals(""))
 					{
 						el = doc.select("td.text12g").text().toString();
+						
+					}
+					else if(!doc.select("meta[name=Last-Modified]").toString().equals(""))
+					{
+						el = doc.select("meta[name=Last-Modified]").attr("content").toString();
 						
 					}
 					else if(!doc.select("div.last-updated").toString().equals(""))
