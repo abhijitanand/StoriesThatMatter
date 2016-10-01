@@ -39,7 +39,7 @@ public class CreateTimeSeries {
 	//3. A function to read from the above folder and create a story, timeseries file(Use redirect function)
 	//4. A function to read from folder and create a story, timeseries and frequency file(Use redirect file)
 	//5. Get timeseries for all stories present in wikitimes and from folders
-	void getTimeSeries(Set fileEntityDate, String TimeSeries)
+	public void getTimeSeries(Set fileEntityDate, String TimeSeries)
 	{
 		getTimeSeriesForStories(fileEntityDate, TimeSeries);
 	}

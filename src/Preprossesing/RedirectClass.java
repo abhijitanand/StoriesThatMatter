@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,7 +39,7 @@ public class RedirectClass {
 	
 	//2. Get all redirects for Stories, also consider the stories in Redirect file if present.
 	//Called from: StartPreprossesing.main
-	void getRedirects(Set StoryList, String Redirect) {
+	public void getRedirects(Set StoryList, String Redirect) {
 		String line = "";
 		BufferedReader br = null;
 		Map<String, String> StoryRedirects = new HashMap<String, String>();
@@ -125,15 +126,15 @@ public class RedirectClass {
 		} catch (IOException ex) {
 			Logger.getLogger(RedirectClass.class.getName()).log(
 					Level.SEVERE, null, ex);
-		} catch (ParseException ex) {
-			Logger.getLogger(RedirectClass.class.getName()).log(
-					Level.SEVERE, null, ex);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return storyPageName.replaceAll(" ", "_");
 	}
 	
 	//Reads from Redirect file and returns a Map with Redirected to and the story page names
-	Map returnRedirectMap(String Redirect)
+	public Map returnRedirectMap(String Redirect)
 	{
 		Map<String,String> RedirectStoryMap = new HashMap<String, String>();
 		String line = "";
